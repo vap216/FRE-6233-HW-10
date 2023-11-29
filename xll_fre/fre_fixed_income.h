@@ -119,7 +119,11 @@ namespace fre::fixed_income {
 		
 		while (fabs(pv(_f) - p) > eps) {
 			ensure(N--);
-			//_f = _f; // !!! use Newton-Raphson for root of pv - p
+			_f = f_ - (pv(f_) - p) / dpv(f_); // !!! use Newton-Raphson for root of pv - p
+			if (_f < 0) {
+				_f = f_ / 2;
+			}
+			std::swap(_f, f_);
 		}
 		
 		return _f;
@@ -147,7 +151,7 @@ namespace fre::fixed_income {
 			auto c = pwflat::curve({ 1. }, { 0.03 });
 			auto p = present_value(i, c.extrapolate(0.04));
 			auto _f = bootstrap(i, c, p);
-			ensure(fabs(_f - .04) < 10 * sqrt(epsilon<double>));
+			ensure(fabs(_f - .04) <  10 * sqrt(epsilon<double>));
 		}
 
 		return 0;
